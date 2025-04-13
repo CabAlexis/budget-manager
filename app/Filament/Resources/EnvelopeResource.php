@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\EnvelopeResource\Pages;
+use App\Filament\Resources\EnvelopeResource\RelationManagers\ExpensesRelationManager;
 use App\Models\Envelope;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -56,6 +57,13 @@ class EnvelopeResource extends Resource
             ->bulkActions([
                 DeleteBulkAction::make(),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            ExpensesRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

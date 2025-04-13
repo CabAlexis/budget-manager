@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BudgetMonthResource\Pages;
+use App\Filament\Resources\BudgetMonthResource\RelationManagers\EnvelopesRelationManager;
 use App\Models\BudgetMonth;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Grid;
@@ -77,6 +78,13 @@ class BudgetMonthResource extends Resource
             ->bulkActions([
                 DeleteBulkAction::make(),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            EnvelopesRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
