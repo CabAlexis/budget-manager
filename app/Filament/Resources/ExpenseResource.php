@@ -50,7 +50,8 @@ class ExpenseResource extends Resource
                     ->maxLength(1000),
 
                 Toggle::make('is_recurring')
-                    ->label('Dépense récurrente'),
+                    ->label('Dépense récurrente')
+                    ->live(),
 
                 Select::make('recurrence_type')
                     ->label('Type de récurrence')
