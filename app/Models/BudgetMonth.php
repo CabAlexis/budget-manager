@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use App\Observers\BudgetMonthObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[ObservedBy([BudgetMonthObserver::class])]
 class BudgetMonth extends Model
 {
     protected $fillable = [
