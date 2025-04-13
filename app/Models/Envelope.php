@@ -37,4 +37,10 @@ class Envelope extends Model
     {
         return $this->hasMany(Expense::class);
     }
+
+    public function participants()
+    {
+        return $this->belongsToMany(Participant::class)
+            ->withPivot('ratio');
+    }
 }
