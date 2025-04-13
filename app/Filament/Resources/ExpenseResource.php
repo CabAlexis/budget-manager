@@ -3,43 +3,68 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ExpenseResource\Pages;
-use App\Filament\Resources\ExpenseResource\RelationManagers;
 use App\Models\Expense;
-use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ExpenseResource extends Resource
 {
     protected static ?string $model = Expense::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-currency-euro';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('envelope_id')
+                Select::make('envelope_id')
+                    ->label('Enveloppe')
                     ->relationship('envelope', 'name')
                     ->required(),
-                Forms\Components\TextInput::make('name')
+
+                TextInput::make('name')
+                    ->label('Nom de la dépense')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('amount')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\DatePicker::make('date')
+
+                TextInput::make('amount')
+                    ->label('Montant')
+                    ->numeric()
                     ->required(),
-                Forms\Components\Toggle::make('is_recurring')
+
+                DatePicker::make('date')
+                    ->label('Date')
                     ->required(),
-                Forms\Components\TextInput::make('recurrence_type'),
-                Forms\Components\DatePicker::make('recurrence_end_date'),
-                Forms\Components\Textarea::make('note')
-                    ->columnSpanFull(),
+
+                Textarea::make('note')
+                    ->label('Note')
+                    ->maxLength(1000),
+
+                Toggle::make('is_recurring')
+                    ->label('Dépense récurrente'),
+
+                Select::make('recurrence_type')
+                    ->label('Type de récurrence')
+                    ->options([
+                        'daily' => 'Quotidien',
+                        'weekly' => 'Hebdomadaire',
+                        'monthly' => 'Mensuel',
+                    ])
+                    ->visible(fn ($get) => $get('is_recurring'))
+                    ->requiredIf('is_recurring', true),
+
+                DatePicker::make('recurrence_end_date')
+                    ->label('Date de fin de récurrence')
+                    ->visible(fn ($get) => $get('is_recurring')),
             ]);
     }
 
@@ -47,50 +72,19 @@ class ExpenseResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('envelope.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('amount')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('date')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_recurring')
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('recurrence_type'),
-                Tables\Columns\TextColumn::make('recurrence_end_date')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('name')->label('Nom'),
+                TextColumn::make('amount')->label('Montant')->money('EUR'),
+                TextColumn::make('date')->label('Date')->date(),
+                TextColumn::make('envelope.name')->label('Enveloppe'),
             ])
-            ->filters([
-                //
-            ])
+            ->defaultSort('date', 'desc')
+            ->filters([])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                DeleteBulkAction::make(),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array
