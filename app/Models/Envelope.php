@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Casts\EnvelopeAmountRemaining;
+use App\Casts\EnvelopeAmountSpent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,6 +15,11 @@ class Envelope extends Model
         'name',
         'amount_allocated',
         'amount_spent',
+    ];
+
+    protected $casts = [
+        'amount_spent' => EnvelopeAmountSpent::class,
+        'amount_remaining' => EnvelopeAmountRemaining::class,
     ];
 
     /**

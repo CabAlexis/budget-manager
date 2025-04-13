@@ -48,6 +48,10 @@ class EnvelopeResource extends Resource
                 TextColumn::make('amount_spent')->label('Dépensé')->money('EUR'),
                 TextColumn::make('budgetMonth.year')->label('Année'),
                 TextColumn::make('budgetMonth.month')->label('Mois'),
+                TextColumn::make('amount_remaining')
+                    ->label('Restant')
+                    ->money('EUR')
+                    ->color(fn ($record) => $record->amount_remaining < 0 ? 'danger' : 'success'),
             ])
             ->defaultSort('id', 'desc')
             ->filters([])
