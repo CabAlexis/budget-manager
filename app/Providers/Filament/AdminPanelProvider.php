@@ -6,6 +6,7 @@ use App\Filament\Widgets\CurrentBudgetMonthSummary;
 use App\Filament\Widgets\ExpensesByEnvelopeChart;
 use App\Filament\Widgets\ExpensesEvolutionChart;
 use App\Filament\Widgets\ExpensesStatsSummary;
+use App\Filament\Widgets\QuickAddExpense;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -46,6 +47,7 @@ class AdminPanelProvider extends PanelProvider
                 ExpensesByEnvelopeChart::class,
                 CurrentBudgetMonthSummary::class,
                 ExpensesEvolutionChart::class,
+                QuickAddExpense::class,
             ])
             ->middleware([
                 EncryptCookies::class,

@@ -8,6 +8,8 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class CurrentBudgetMonthSummary extends BaseWidget
 {
+    protected static ?int $sort = 1;
+
     protected function getCards(): array
     {
         $currentBudget = BudgetMonth::latest()->first();

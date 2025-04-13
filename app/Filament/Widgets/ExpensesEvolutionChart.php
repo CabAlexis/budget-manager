@@ -7,6 +7,8 @@ use Filament\Widgets\ChartWidget;
 
 class ExpensesEvolutionChart extends ChartWidget
 {
+    protected static ?int $sort = 4;
+    
     protected static ?string $heading = 'Évolution des dépenses';
 
     protected static ?string $maxHeight = '300px';

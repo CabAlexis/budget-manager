@@ -3,13 +3,14 @@
 namespace App\Filament\Widgets;
 
 use App\Models\BudgetMonth;
-use Filament\Support\Colors\Color;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Card;
 use Illuminate\Support\HtmlString;
 
 class ExpensesStatsSummary extends BaseWidget
 {
+    protected static ?int $sort = 2;
+
     protected function getCards(): array
     {
         $currentBudget = BudgetMonth::latest()->first();

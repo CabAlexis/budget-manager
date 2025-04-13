@@ -7,6 +7,8 @@ use Filament\Widgets\ChartWidget;
 
 class ExpensesByEnvelopeChart extends ChartWidget
 {
+    protected static ?int $sort = 3;
+    
     protected static ?string $heading = 'Répartition des dépenses par enveloppe';
 
     protected static ?string $maxHeight = '300px';

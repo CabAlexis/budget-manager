@@ -1,83 +1,52 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Observers;
 
-use App\Filament\Resources\EnvelopeResource\Pages;
-use App\Filament\Resources\EnvelopeResource\RelationManagers\ExpensesRelationManager;
-use App\Filament\Resources\EnvelopeResource\RelationManagers\ParticipantsRelationManager;
-use App\Models\Envelope;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
+use App\Models\BudgetMonth;
 
-class EnvelopeResource extends Resource
+class BudgetMonthObserver
 {
-    protected static ?string $model = Envelope::class;
-
-    protected static ?string $navigationIcon = 'heroicon-o-archive-box';
-
-    public static function form(Form $form): Form
+    public function created(BudgetMonth $budgetMonth): void
     {
-        return $form
-            ->schema([
-                Select::make('budget_month_id')
-                    ->label('Budget du mois')
-                    ->relationship('budgetMonth', 'month')
-                    ->required(),
-                TextInput::make('name')
-                    ->label('Nom de l\'enveloppe')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('amount_allocated')
-                    ->label('Montant alloué')
-                    ->numeric()
-                    ->required(),
+        $previousBudgetMonth = BudgetMonth::query()
+            ->where(function ($query) use ($budgetMonth) {
+                $query->where('year', '<', $budgetMonth->year)
+                      ->orWhere(function ($query) use ($budgetMonth) {
+                          $query->where('year', $budgetMonth->year)
+                                ->where('month', '<', $budgetMonth->month);
+                      });
+            })
+            ->orderByDesc('year')
+            ->orderByDesc('month')
+            ->first();
+
+        if (! $previousBudgetMonth) {
+            return;
+        }
+
+        // Clonage des enveloppes récurrentes
+        foreach ($previousBudgetMonth->envelopes()->where('is_recurring', true)->get() as $previousEnvelope) {
+            $newEnvelope = $budgetMonth->envelopes()->create([
+                'name' => $previousEnvelope->name,
+                'amount_allocated' => $previousEnvelope->amount_allocated,
+                'is_recurring' => true,
             ]);
-    }
 
-    public static function table(Table $table): Table
-    {
-        return $table
-            ->columns([
-                TextColumn::make('name')->label('Nom'),
-                TextColumn::make('amount_allocated')->label('Budget')->money('EUR'),
-                TextColumn::make('amount_spent')->label('Dépensé')->money('EUR'),
-                TextColumn::make('budgetMonth.year')->label('Année'),
-                TextColumn::make('budgetMonth.month')->label('Mois'),
-                TextColumn::make('amount_remaining')
-                    ->label('Restant')
-                    ->money('EUR')
-                    ->color(fn ($record) => $record->amount_remaining < 0 ? 'danger' : 'success'),
-            ])
-            ->defaultSort('id', 'desc')
-            ->filters([])
-            ->actions([
-                EditAction::make(),
-            ])
-            ->bulkActions([
-                DeleteBulkAction::make(),
-            ]);
-    }
+            // Copier les participants et leurs ratios
+            $newEnvelope->participants()->sync(
+                $previousEnvelope->participants->pluck('pivot.ratio', 'id')->toArray()
+            );
 
-    public static function getRelations(): array
-    {
-        return [
-            ExpensesRelationManager::class,
-            ParticipantsRelationManager::class,
-        ];
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListEnvelopes::route('/'),
-            'create' => Pages\CreateEnvelope::route('/create'),
-            'edit' => Pages\EditEnvelope::route('/{record}/edit'),
-        ];
+            // Clonage des dépenses récurrentes associées
+            foreach ($previousEnvelope->expenses()->where('is_recurring', true)->get() as $expense) {
+                $newEnvelope->expenses()->create([
+                    'name' => $expense->name,
+                    'amount' => $expense->amount,
+                    'date' => now()->startOfMonth(),
+                    'note' => 'Dépense récurrente auto-générée',
+                    'is_recurring' => true,
+                ]);
+            }
+        }
     }
 }
