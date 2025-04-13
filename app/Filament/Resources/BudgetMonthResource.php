@@ -3,39 +3,59 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BudgetMonthResource\Pages;
-use App\Filament\Resources\BudgetMonthResource\RelationManagers;
 use App\Models\BudgetMonth;
-use Filament\Forms;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BudgetMonthResource extends Resource
 {
     protected static ?string $model = BudgetMonth::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-calendar';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('month')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('year')
-                    ->required(),
-                Forms\Components\TextInput::make('income_total')
-                    ->required()
-                    ->numeric()
-                    ->default(0.00),
-                Forms\Components\TextInput::make('saving_goal')
-                    ->required()
-                    ->numeric()
-                    ->default(0.00),
+                Grid::make(2)
+                    ->schema([
+                        Select::make('month')
+                            ->label('Mois')
+                            ->required()
+                            ->options([
+                                1 => 'Janvier',
+                                2 => 'Février',
+                                3 => 'Mars',
+                                4 => 'Avril',
+                                5 => 'Mai',
+                                6 => 'Juin',
+                                7 => 'Juillet',
+                                8 => 'Août',
+                                9 => 'Septembre',
+                                10 => 'Octobre',
+                                11 => 'Novembre',
+                                12 => 'Décembre',
+                            ]),
+                        TextInput::make('year')
+                            ->label('Année')
+                            ->numeric()
+                            ->required(),
+                        TextInput::make('income_total')
+                            ->label('Revenus totaux')
+                            ->numeric()
+                            ->default(0),
+                        TextInput::make('saving_goal')
+                            ->label('Objectif épargne')
+                            ->numeric()
+                            ->default(0),
+                    ]),
             ]);
     }
 
@@ -43,43 +63,20 @@ class BudgetMonthResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('month')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('year'),
-                Tables\Columns\TextColumn::make('income_total')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('saving_goal')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('month')->label('Mois'),
+                TextColumn::make('year')->label('Année'),
+                TextColumn::make('income_total')->label('Revenus')->money('EUR'),
+                TextColumn::make('saving_goal')->label('Objectif épargne')->money('EUR'),
+                TextColumn::make('created_at')->label('Créé le')->dateTime(),
             ])
-            ->filters([
-                //
-            ])
+            ->defaultSort('year', 'desc')
+            ->filters([])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                DeleteBulkAction::make(),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array
