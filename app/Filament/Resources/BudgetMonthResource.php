@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\BudgetMonthResource\Pages;
 use App\Filament\Resources\BudgetMonthResource\RelationManagers\EnvelopesRelationManager;
 use App\Models\BudgetMonth;
+use App\Models\Participant;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -51,7 +52,15 @@ class BudgetMonthResource extends Resource
                         TextInput::make('income_total')
                             ->label('Revenus totaux')
                             ->numeric()
-                            ->default(0),
+                            ->default(0)
+                            ->lte(function () {
+                                $participantsIncome = Participant::sum('income');
+                                if ($participantsIncome > 0) {
+                                    return $participantsIncome;
+                                }
+                            
+                            })
+                            ->helperText('Si des participants sont renseignés, les revenus totaux ne peuvent pas dépasser leur somme.'),
                         TextInput::make('saving_goal')
                             ->label('Objectif épargne')
                             ->numeric()
