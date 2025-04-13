@@ -4,7 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\BudgetMonth;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
-use Filament\Widgets\StatsOverviewWidget\Card;
+use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\HtmlString;
 
 class ExpensesStatsSummary extends BaseWidget
@@ -17,7 +17,7 @@ class ExpensesStatsSummary extends BaseWidget
 
         if (! $currentBudget) {
             return [
-                Card::make('Aucun budget trouvé', 'Créez votre premier budget'),
+                Stat::make('Aucun budget trouvé', 'Créez votre premier budget'),
             ];
         }
 
@@ -32,12 +32,12 @@ class ExpensesStatsSummary extends BaseWidget
         $budgetExceeded = $estimatedTotal > $currentBudget->income_total;
 
         return [
-            Card::make('Moyenne / jour', number_format($averagePerDay, 2, ',', ' ') . ' €')
+            Stat::make('Moyenne / jour', number_format($averagePerDay, 2, ',', ' ') . ' €')
                 ->description('Dépense moyenne journalière')
                 ->descriptionColor('primary')
                 ->extraAttributes(['class' => 'bg-primary-50']),
 
-            Card::make('Estimation fin de mois', new HtmlString(
+            Stat::make('Estimation fin de mois', new HtmlString(
                 '<span class="' . ($budgetExceeded ? 'text-danger-600' : 'text-success-600') . '">' .
                 number_format($estimatedTotal, 2, ',', ' ') . ' €' .
                 '</span>'

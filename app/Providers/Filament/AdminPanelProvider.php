@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\BudgetGlobalStats;
 use App\Filament\Widgets\CurrentBudgetMonthSummary;
 use App\Filament\Widgets\ExpensesByEnvelopeChart;
 use App\Filament\Widgets\ExpensesEvolutionChart;
@@ -48,6 +49,7 @@ class AdminPanelProvider extends PanelProvider
                 CurrentBudgetMonthSummary::class,
                 ExpensesEvolutionChart::class,
                 QuickAddExpense::class,
+                BudgetGlobalStats::class,
             ])
             ->middleware([
                 EncryptCookies::class,

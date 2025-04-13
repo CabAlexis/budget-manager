@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('budget_months', function (Blueprint $table) {
-            $table->unsignedDecimal('total_income', 10, 2)->default(0);
+            $table->decimal('total_income', 10, 2)->default(0);
         });
     }
 

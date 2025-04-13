@@ -33,7 +33,8 @@ class ParticipantResource extends Resource
     {
         return $table
             ->columns([
-                TextInputColumn::make('name')
+                TextInputColumn::make('name'),
+                TextInputColumn::make('income'),
             ])
             ->filters([
                 //

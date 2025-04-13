@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Month;
 use App\Filament\Resources\BudgetMonthResource\Pages;
 use App\Filament\Resources\BudgetMonthResource\RelationManagers\EnvelopesRelationManager;
 use App\Models\BudgetMonth;
@@ -10,6 +11,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
@@ -31,20 +33,7 @@ class BudgetMonthResource extends Resource
                         Select::make('month')
                             ->label('Mois')
                             ->required()
-                            ->options([
-                                1 => 'Janvier',
-                                2 => 'Février',
-                                3 => 'Mars',
-                                4 => 'Avril',
-                                5 => 'Mai',
-                                6 => 'Juin',
-                                7 => 'Juillet',
-                                8 => 'Août',
-                                9 => 'Septembre',
-                                10 => 'Octobre',
-                                11 => 'Novembre',
-                                12 => 'Décembre',
-                            ]),
+                            ->options(Month::options()),
                         TextInput::make('year')
                             ->label('Année')
                             ->numeric()
@@ -53,12 +42,14 @@ class BudgetMonthResource extends Resource
                             ->label('Revenus totaux')
                             ->numeric()
                             ->default(0)
-                            ->lte(function () {
+                            ->rule(function () {
                                 $participantsIncome = Participant::sum('income');
-                                if ($participantsIncome > 0) {
-                                    return $participantsIncome;
-                                }
-                            
+                        
+                                return function (string $attribute, $value, $fail) use ($participantsIncome) {
+                                    if ($participantsIncome > 0 && $value > $participantsIncome) {
+                                        $fail('Le revenu total ne peut pas dépasser la somme des revenus des participants (' . number_format($participantsIncome, 2, ',', ' ') . ' €).');
+                                    }
+                                };
                             })
                             ->helperText('Si des participants sont renseignés, les revenus totaux ne peuvent pas dépasser leur somme.'),
                         TextInput::make('saving_goal')
@@ -73,7 +64,7 @@ class BudgetMonthResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('month')->label('Mois'),
+                TextColumn::make('month')->label('Mois')->formatStateUsing(fn (int $state) => \App\Enums\Month::from($state)->label()),
                 TextColumn::make('year')->label('Année'),
                 TextColumn::make('income_total')->label('Revenus')->money('EUR'),
                 TextColumn::make('saving_goal')->label('Objectif épargne')->money('EUR'),
