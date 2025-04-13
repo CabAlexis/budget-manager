@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Widgets\CurrentBudgetMonthSummary;
 use App\Filament\Widgets\ExpensesByEnvelopeChart;
 use App\Filament\Widgets\ExpensesEvolutionChart;
+use App\Filament\Widgets\ExpensesStatsSummary;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -41,8 +42,9 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                CurrentBudgetMonthSummary::class,
+                ExpensesStatsSummary::class,
                 ExpensesByEnvelopeChart::class,
+                CurrentBudgetMonthSummary::class,
                 ExpensesEvolutionChart::class,
             ])
             ->middleware([
