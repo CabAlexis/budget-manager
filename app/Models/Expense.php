@@ -18,6 +18,10 @@ class Expense extends Model
         'recurrence_end_date',
     ];
 
+    protected $casts = [
+        'date' => 'date',
+    ];
+    
     /**
      * Une dépense appartient à une enveloppe.
      */
